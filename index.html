@@ -62,50 +62,130 @@
         .status-badge-active { background-color: #ede9fe; color: #7c3aed; }
         .status-badge-locked { background-color: #f3f4f6; color: #6b7280; }
         .status-badge-not-started { background-color: #dbeafe; color: #2563eb; }
+
+        /* Animations */
+        .animate-on-scroll { opacity: 0; transition: all 0.8s ease-out; }
+        .fade-in-up { transform: translateY(30px); }
+        .slide-in-left { transform: translateX(-50px); }
+        .slide-in-right { transform: translateX(50px); }
+        .scale-up { transform: scale(0.9); }
+
+        .animate-on-scroll.visible { opacity: 1; transform: translate(0) scale(1); }
+
+        .delay-100 { transition-delay: 100ms; }
+        .delay-200 { transition-delay: 200ms; }
+        .delay-300 { transition-delay: 300ms; }
+
+        /* Electric Border & Glow */
+        @keyframes electric-shimmer {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .electric-border-btn {
+            position: relative;
+            background: transparent;
+            z-index: 1;
+        }
+
+        .electric-border-btn::before {
+            content: "";
+            position: absolute;
+            inset: -3px;
+            z-index: -1;
+            background: linear-gradient(45deg, #ff00cc, #3333ff, #00ccff, #ff00cc);
+            background-size: 400%;
+            border-radius: 12px;
+            animation: electric-shimmer 20s linear infinite;
+            filter: blur(5px);
+            opacity: 0.7;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .electric-border-btn:hover::before {
+            opacity: 1;
+            filter: blur(8px);
+        }
+
+        .electric-border-btn::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            background: rgba(0,0,0,0.5); /* Semi-transparent dark background */
+            border-radius: 8px;
+        }
+
+        .glow-text {
+            animation: pulse-glow 2s infinite;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { text-shadow: 0 0 5px currentColor; }
+            50% { text-shadow: 0 0 20px currentColor; }
+        }
+
+        /* Modal Animation */
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .modal.active > div {
+            animation: modalFadeIn 0.3s ease-out forwards;
+        }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
     <!-- Navigation -->
-    <nav id="navbar" class="fixed w-full z-50 transition-all duration-300 bg-white shadow-md">
+    <nav id="navbar" class="fixed w-full z-50 transition-all duration-300 bg-white dark:bg-gray-800 shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center cursor-pointer" onclick="navigateTo('home')">
                     <i class="fas fa-atom text-purple-600 text-2xl mr-2"></i>
-                    <span class="font-bold text-xl text-gray-800">PhysicsGuru</span>
+                    <span class="font-bold text-xl text-gray-800 dark:text-white">PhysicsGuru</span>
                 </div>
                 <div class="hidden md:flex items-center space-x-4">
-                    <a href="#" onclick="navigateTo('home')" class="text-gray-600 hover:text-purple-600 transition">Home</a>
-                    <a href="#courses" class="text-gray-600 hover:text-purple-600 transition">Courses</a>
-                    <a href="#about" class="text-gray-600 hover:text-purple-600 transition">About</a>
+                    <a href="#" onclick="navigateTo('home')" class="text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition">Home</a>
+                    <a href="#courses" class="text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition">Courses</a>
+                    <a href="#about" class="text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition">About</a>
+                    <button onclick="toggleDarkMode()" class="text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition focus:outline-none" title="Toggle Dark Mode">
+                        <i id="darkModeIcon" class="fas fa-moon text-xl"></i>
+                    </button>
                     <div id="authButtons">
-                        <button onclick="showAuthModal('login')" class="px-4 py-2 text-purple-600 hover:text-purple-700 transition">Login</button>
+                        <button onclick="showAuthModal('login')" class="px-4 py-2 text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition">Login</button>
                         <button onclick="showAuthModal('register')" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">Sign Up</button>
                     </div>
                     <div id="userMenu" class="hidden relative">
-                        <button onclick="toggleUserDropdown()" class="flex items-center space-x-2 text-gray-700 hover:text-purple-600">
+                        <button onclick="toggleUserDropdown()" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-purple-600 dark:hover:text-purple-400">
                             <i class="fas fa-user-circle text-2xl"></i>
                             <span id="userName"></span>
                             <i class="fas fa-chevron-down text-sm"></i>
                         </button>
-                        <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2">
-                            <a href="#" onclick="navigateTo('profile')" class="block px-4 py-2 text-gray-700 hover:bg-purple-50" id="profileLink"><i class="fas fa-user mr-2"></i>My Profile</a>
-                            <a href="#" onclick="navigateTo('teacherProfile')" class="block px-4 py-2 text-gray-700 hover:bg-purple-50 hidden" id="teacherProfileLink"><i class="fas fa-id-card mr-2"></i>Edit Profile</a>
-                            <a href="#" onclick="navigateTo('dashboard')" class="block px-4 py-2 text-gray-700 hover:bg-purple-50" id="dashboardLink">Dashboard</a>
-                            <a href="#" onclick="logout()" class="block px-4 py-2 text-red-600 hover:bg-red-50">Logout</a>
+                        <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-2 border dark:border-gray-700">
+                            <a href="#" onclick="navigateTo('profile')" class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-gray-700" id="profileLink"><i class="fas fa-user mr-2"></i>My Profile</a>
+                            <a href="#" onclick="navigateTo('teacherProfile')" class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-gray-700 hidden" id="teacherProfileLink"><i class="fas fa-id-card mr-2"></i>Edit Profile</a>
+                            <a href="#" onclick="navigateTo('dashboard')" class="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-gray-700" id="dashboardLink">Dashboard</a>
+                            <a href="#" onclick="logout()" class="block px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">Logout</a>
                         </div>
                     </div>
                 </div>
-                <button class="md:hidden text-gray-600" onclick="toggleMobileMenu()">
+                <button class="md:hidden text-gray-600 dark:text-gray-300" onclick="toggleMobileMenu()">
                     <i class="fas fa-bars text-xl"></i>
                 </button>
             </div>
         </div>
         <!-- Mobile Menu -->
-        <div id="mobileMenu" class="hidden md:hidden bg-white border-t">
+        <div id="mobileMenu" class="hidden md:hidden bg-white dark:bg-gray-800 border-t dark:border-gray-700">
             <div class="px-4 py-3 space-y-2">
-                <a href="#" onclick="navigateTo('home')" class="block py-2 text-gray-600">Home</a>
-                <a href="#courses" class="block py-2 text-gray-600">Courses</a>
-                <a href="#about" class="block py-2 text-gray-600">About</a>
+                <div class="flex justify-between items-center py-2">
+                    <span class="text-gray-600 dark:text-gray-300">Dark Mode</span>
+                    <button onclick="toggleDarkMode()" class="text-gray-600 dark:text-gray-300 focus:outline-none">
+                        <i id="mobileDarkModeIcon" class="fas fa-moon text-xl"></i>
+                    </button>
+                </div>
+                <a href="#" onclick="navigateTo('home')" class="block py-2 text-gray-600 dark:text-gray-300">Home</a>
+                <a href="#courses" class="block py-2 text-gray-600 dark:text-gray-300">Courses</a>
+                <a href="#about" class="block py-2 text-gray-600 dark:text-gray-300">About</a>
                 <div id="mobileAuthButtons">
                     <button onclick="showAuthModal('login')" class="block w-full text-left py-2 text-purple-600">Login</button>
                     <button onclick="showAuthModal('register')" class="block w-full mt-2 px-4 py-2 bg-purple-600 text-white rounded-lg text-center">Sign Up</button>
@@ -120,18 +200,18 @@
         <section class="gradient-bg pt-24 pb-16 min-h-screen flex items-center">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid md:grid-cols-2 gap-12 items-center">
-                    <div class="text-white">
+                    <div class="text-white animate-on-scroll slide-in-left">
                         <h1 class="text-4xl md:text-5xl font-bold mb-6">Master Physics with Expert Guidance</h1>
                         <p class="text-lg mb-8 text-purple-100">Comprehensive video lectures for Class 11 & 12 Physics. Learn at your own pace with our expert faculty.</p>
                         <div class="flex flex-wrap gap-4">
-                            <button onclick="scrollToSection('courses')" class="px-8 py-3 bg-white text-purple-600 rounded-lg font-semibold hover:bg-gray-100 transition">
+                            <button onclick="scrollToSection('courses')" class="px-8 py-3 bg-white text-purple-600 rounded-lg font-semibold hover:bg-gray-100 transition hover:scale-105 transform">
                                 Explore Courses
                             </button>
-                            <button onclick="showAuthModal('register')" class="px-8 py-3 border-2 border-white text-white rounded-lg font-semibold hover:bg-white hover:text-purple-600 transition">
-                                Get Started Free
+                            <button onclick="showAuthModal('register')" class="px-8 py-3 text-white font-semibold electric-border-btn transition hover:scale-105 transform">
+                                <span class="relative z-10">Get Started Free</span>
                             </button>
                         </div>
-                        <div class="mt-12 flex items-center space-x-8">
+                        <div class="mt-12 flex items-center space-x-8 animate-on-scroll fade-in-up delay-200">
                             <div>
                                 <div class="text-3xl font-bold">500+</div>
                                 <div class="text-purple-200">Video Lectures</div>
@@ -146,42 +226,42 @@
                             </div>
                         </div>
                     </div>
-                    <div class="hidden md:block">
-                        <img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600" alt="Physics Learning" class="rounded-2xl shadow-2xl">
+                    <div class="hidden md:block animate-on-scroll slide-in-right">
+                        <img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600" alt="Physics Learning" class="rounded-2xl shadow-2xl hover:shadow-3xl transition duration-500 hover:-translate-y-2">
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Courses Section -->
-        <section id="courses" class="py-20 bg-gray-50">
+        <section id="courses" class="py-20 bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-16">
-                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Our Physics Courses</h2>
-                    <p class="text-gray-600 max-w-2xl mx-auto">Choose from our comprehensive courses designed for Class 11 and Class 12 students</p>
+                <div class="text-center mb-16 animate-on-scroll fade-in-up">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-100 mb-4">Our Physics Courses</h2>
+                    <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">Choose from our comprehensive courses designed for Class 11 and Class 12 students</p>
                 </div>
                 
                 <!-- Class 12 Course Card -->
                 <div class="grid md:grid-cols-2 gap-8 mb-12">
-                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition animate-on-scroll scale-up">
                         <div class="h-48 bg-gradient-to-r from-purple-500 to-indigo-600 flex items-center justify-center">
                             <i class="fas fa-atom text-white text-6xl"></i>
                         </div>
                         <div class="p-6">
                             <div class="flex items-center justify-between mb-4">
-                                <span class="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-sm font-medium">Class 12</span>
-                                <span class="text-green-600 font-semibold"><i class="fas fa-check-circle"></i> Popular</span>
+                                <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300 rounded-full text-sm font-medium">Class 12</span>
+                                <span class="text-green-600 dark:text-green-400 font-semibold glow-text"><i class="fas fa-check-circle"></i> Popular</span>
                             </div>
-                            <h3 class="text-2xl font-bold text-gray-800 mb-2">Complete Physics - Class 12</h3>
-                            <p class="text-gray-600 mb-4">Master all chapters including Electrostatics, Current Electricity, Magnetism, Optics, Modern Physics and more.</p>
-                            <div class="flex items-center text-gray-500 mb-4">
+                            <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">Complete Physics - Class 12</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">Master all chapters including Electrostatics, Current Electricity, Magnetism, Optics, Modern Physics and more.</p>
+                            <div class="flex items-center text-gray-500 dark:text-gray-400 mb-4">
                                 <i class="fas fa-video mr-2"></i>
                                 <span>15 Chapters • 150+ Videos</span>
                             </div>
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <span class="text-3xl font-bold text-gray-800">₹999</span>
-                                    <span class="text-gray-500 line-through ml-2">₹2999</span>
+                                    <span class="text-3xl font-bold text-gray-800 dark:text-gray-100">₹999</span>
+                                    <span class="text-gray-500 dark:text-gray-500 line-through ml-2">₹2999</span>
                                 </div>
                                 <button onclick="handleBuyCourse(12)" class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
                                     Buy Full Course
@@ -191,25 +271,25 @@
                     </div>
 
                     <!-- Class 11 Course Card -->
-                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition animate-on-scroll scale-up delay-200">
                         <div class="h-48 bg-gradient-to-r from-indigo-500 to-blue-600 flex items-center justify-center">
                             <i class="fas fa-flask text-white text-6xl"></i>
                         </div>
                         <div class="p-6">
                             <div class="flex items-center justify-between mb-4">
-                                <span class="px-3 py-1 bg-indigo-100 text-indigo-600 rounded-full text-sm font-medium">Class 11</span>
-                                <span class="text-blue-600 font-semibold"><i class="fas fa-star"></i> Foundation</span>
+                                <span class="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 rounded-full text-sm font-medium">Class 11</span>
+                                <span class="text-blue-600 dark:text-blue-400 font-semibold"><i class="fas fa-star"></i> Foundation</span>
                             </div>
-                            <h3 class="text-2xl font-bold text-gray-800 mb-2">Complete Physics - Class 11</h3>
-                            <p class="text-gray-600 mb-4">Build strong foundations with Mechanics, Thermodynamics, Waves, Oscillations and more.</p>
-                            <div class="flex items-center text-gray-500 mb-4">
+                            <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">Complete Physics - Class 11</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">Build strong foundations with Mechanics, Thermodynamics, Waves, Oscillations and more.</p>
+                            <div class="flex items-center text-gray-500 dark:text-gray-400 mb-4">
                                 <i class="fas fa-video mr-2"></i>
                                 <span>14 Chapters • 140+ Videos</span>
                             </div>
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <span class="text-3xl font-bold text-gray-800">₹999</span>
-                                    <span class="text-gray-500 line-through ml-2">₹2999</span>
+                                    <span class="text-3xl font-bold text-gray-800 dark:text-gray-100">₹999</span>
+                                    <span class="text-gray-500 dark:text-gray-500 line-through ml-2">₹2999</span>
                                 </div>
                                 <button onclick="handleBuyCourse(11)" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
                                     Buy Full Course
@@ -220,8 +300,8 @@
                 </div>
 
                 <!-- Individual Chapters -->
-                <div class="bg-white rounded-2xl shadow-lg p-8">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-6">Or Buy Individual Chapters @ ₹99 each</h3>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 animate-on-scroll fade-in-up delay-300">
+                    <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">Or Buy Individual Chapters @ ₹99 each</h3>
                     <div class="grid md:grid-cols-2 gap-8">
                         <!-- Class 12 Chapters -->
                         <div>
@@ -243,45 +323,45 @@
         </section>
 
         <!-- About Teacher Section -->
-        <section id="about" class="py-20 bg-white">
+        <section id="about" class="py-20 bg-white dark:bg-gray-800 transition-colors duration-300">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-16">
-                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Meet Your Instructor</h2>
-                    <p class="text-gray-600">Learn from the best in the field</p>
+                <div class="text-center mb-16 animate-on-scroll fade-in-up">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-100 mb-4">Meet Your Instructor</h2>
+                    <p class="text-gray-600 dark:text-gray-400">Learn from the best in the field</p>
                 </div>
                 <div class="grid md:grid-cols-2 gap-12 items-center">
-                    <div class="relative">
+                    <div class="relative animate-on-scroll slide-in-left">
                         <img id="homeTeacherPhoto" src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=500" alt="Teacher" class="rounded-2xl shadow-xl w-full max-w-md">
                         <div class="absolute -bottom-6 -right-6 bg-purple-600 text-white p-6 rounded-xl shadow-lg">
                             <div class="text-3xl font-bold" id="homeTeacherExperience">15+</div>
                             <div class="text-sm">Years Experience</div>
                         </div>
                     </div>
-                    <div>
-                        <h3 class="text-2xl font-bold text-gray-800 mb-4" id="homeTeacherName">Dr. Rajesh Kumar</h3>
-                        <p class="text-purple-600 font-medium mb-4" id="homeTeacherDesignation">Ph.D. in Physics, IIT Delhi</p>
-                        <p class="text-gray-600 mb-4" id="homeTeacherBio">With over 15 years of teaching experience, Dr. Rajesh Kumar has helped thousands of students achieve their academic goals. His unique teaching methodology makes complex physics concepts easy to understand.</p>
+                    <div class="animate-on-scroll slide-in-right">
+                        <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4" id="homeTeacherName">Dr. Rajesh Kumar</h3>
+                        <p class="text-purple-600 dark:text-purple-400 font-medium mb-4" id="homeTeacherDesignation">Ph.D. in Physics, IIT Delhi</p>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4" id="homeTeacherBio">With over 15 years of teaching experience, Dr. Rajesh Kumar has helped thousands of students achieve their academic goals. His unique teaching methodology makes complex physics concepts easy to understand.</p>
                         
                         <!-- Qualifications -->
                         <div id="homeTeacherQualificationsSection" class="mb-4 hidden">
-                            <h4 class="font-semibold text-gray-700 mb-2"><i class="fas fa-graduation-cap mr-2 text-purple-600"></i>Qualifications</h4>
-                            <p class="text-gray-600 text-sm" id="homeTeacherQualifications"></p>
+                            <h4 class="font-semibold text-gray-700 dark:text-gray-300 mb-2"><i class="fas fa-graduation-cap mr-2 text-purple-600"></i>Qualifications</h4>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm" id="homeTeacherQualifications"></p>
                         </div>
                         
                         <!-- Specializations -->
                         <div id="homeTeacherSpecializationsSection" class="mb-4 hidden">
-                            <h4 class="font-semibold text-gray-700 mb-2"><i class="fas fa-star mr-2 text-purple-600"></i>Specializations</h4>
+                            <h4 class="font-semibold text-gray-700 dark:text-gray-300 mb-2"><i class="fas fa-star mr-2 text-purple-600"></i>Specializations</h4>
                             <div id="homeTeacherSpecializations" class="flex flex-wrap gap-2"></div>
                         </div>
                         
                         <div class="grid grid-cols-2 gap-4 mb-6">
-                            <div class="bg-purple-50 p-4 rounded-lg">
-                                <div class="text-2xl font-bold text-purple-600" id="homeTeacherStudentsTaught">10,000+</div>
-                                <div class="text-gray-600">Students Taught</div>
+                            <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+                                <div class="text-2xl font-bold text-purple-600 dark:text-purple-400" id="homeTeacherStudentsTaught">10,000+</div>
+                                <div class="text-gray-600 dark:text-gray-400">Students Taught</div>
                             </div>
-                            <div class="bg-purple-50 p-4 rounded-lg">
-                                <div class="text-2xl font-bold text-purple-600" id="homeTeacherVideoCount">500+</div>
-                                <div class="text-gray-600">Video Lectures</div>
+                            <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+                                <div class="text-2xl font-bold text-purple-600 dark:text-purple-400" id="homeTeacherVideoCount">500+</div>
+                                <div class="text-gray-600 dark:text-gray-400">Video Lectures</div>
                             </div>
                         </div>
                         <div class="flex items-center space-x-4" id="homeTeacherSocials">
@@ -295,46 +375,46 @@
         </section>
 
         <!-- Features Section -->
-        <section class="py-20 bg-gray-50">
+        <section class="py-20 bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center mb-16">
-                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Why Choose PhysicsGuru?</h2>
+                <div class="text-center mb-16 animate-on-scroll fade-in-up">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-100 mb-4">Why Choose PhysicsGuru?</h2>
                 </div>
                 <div class="grid md:grid-cols-4 gap-8">
-                    <div class="bg-white p-6 rounded-xl shadow-md text-center hover:shadow-lg transition">
-                        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-video text-purple-600 text-2xl"></i>
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md text-center hover:shadow-lg transition animate-on-scroll fade-in-up">
+                        <div class="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-video text-purple-600 dark:text-purple-400 text-2xl"></i>
                         </div>
-                        <h4 class="font-semibold text-gray-800 mb-2">HD Video Lectures</h4>
-                        <p class="text-gray-600 text-sm">Crystal clear video quality for better learning</p>
+                        <h4 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">HD Video Lectures</h4>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">Crystal clear video quality for better learning</p>
                     </div>
-                    <div class="bg-white p-6 rounded-xl shadow-md text-center hover:shadow-lg transition">
-                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-infinity text-green-600 text-2xl"></i>
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md text-center hover:shadow-lg transition animate-on-scroll fade-in-up delay-100">
+                        <div class="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-infinity text-green-600 dark:text-green-400 text-2xl"></i>
                         </div>
-                        <h4 class="font-semibold text-gray-800 mb-2">Lifetime Access</h4>
-                        <p class="text-gray-600 text-sm">Watch anytime, anywhere, forever</p>
+                        <h4 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">Lifetime Access</h4>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">Watch anytime, anywhere, forever</p>
                     </div>
-                    <div class="bg-white p-6 rounded-xl shadow-md text-center hover:shadow-lg transition">
-                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-chart-line text-blue-600 text-2xl"></i>
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md text-center hover:shadow-lg transition animate-on-scroll fade-in-up delay-200">
+                        <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-chart-line text-blue-600 dark:text-blue-400 text-2xl"></i>
                         </div>
-                        <h4 class="font-semibold text-gray-800 mb-2">Track Progress</h4>
-                        <p class="text-gray-600 text-sm">Monitor your learning journey</p>
+                        <h4 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">Track Progress</h4>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">Monitor your learning journey</p>
                     </div>
-                    <div class="bg-white p-6 rounded-xl shadow-md text-center hover:shadow-lg transition">
-                        <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fas fa-certificate text-yellow-600 text-2xl"></i>
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md text-center hover:shadow-lg transition animate-on-scroll fade-in-up delay-300">
+                        <div class="w-16 h-16 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-certificate text-yellow-600 dark:text-yellow-400 text-2xl"></i>
                         </div>
-                        <h4 class="font-semibold text-gray-800 mb-2">Certificate</h4>
-                        <p class="text-gray-600 text-sm">Get certified on course completion</p>
+                        <h4 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">Certificate</h4>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm">Get certified on course completion</p>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Footer -->
-        <footer class="bg-gray-800 text-white py-12">
+        <footer class="bg-gray-800 text-white py-12 animate-on-scroll fade-in-up">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid md:grid-cols-4 gap-8">
                     <div>
@@ -1217,6 +1297,49 @@
         const RAZORPAY_KEY = 'YOUR_RAZORPAY_KEY_ID';
         const TEACHER_SECRET_CODE = 'TEACHER_SECRET_123';
         const PASSING_PERCENTAGE = 60;
+
+        // ==================== DARK MODE ====================
+        function initDarkMode() {
+            if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            updateDarkModeUI();
+        }
+
+        function toggleDarkMode() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+            updateDarkModeUI();
+        }
+
+        function updateDarkModeUI() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const icon = document.getElementById('darkModeIcon');
+            const mobileIcon = document.getElementById('mobileDarkModeIcon');
+
+            if (icon) icon.className = isDark ? 'fas fa-sun text-yellow-400 text-xl' : 'fas fa-moon text-xl';
+            if (mobileIcon) mobileIcon.className = isDark ? 'fas fa-sun text-yellow-400 text-xl' : 'fas fa-moon text-xl';
+        }
+
+        // ==================== ANIMATIONS ====================
+        function initAnimations() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+        }
         
         // ==================== DATA STRUCTURES ====================
         const class12Chapters = [
@@ -1605,19 +1728,19 @@
                 const watchedClass12 = class12Videos.filter(v => user.watchedVideos.includes(v.id)).length;
                 const progressClass12 = class12Videos.length > 0 ? Math.round((watchedClass12 / class12Videos.length) * 100) : 0;
                 html += `
-                    <div class="flex items-center justify-between p-4 bg-purple-50 rounded-lg border-l-4 border-purple-500">
+                    <div class="flex items-center justify-between p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border-l-4 border-purple-500 dark:border-purple-400">
                         <div class="flex items-center">
-                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
-                                <i class="fas fa-atom text-purple-600 text-xl"></i>
+                            <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-atom text-purple-600 dark:text-purple-400 text-xl"></i>
                             </div>
                             <div>
-                                <h4 class="font-semibold text-gray-800">Complete Physics - Class 12</h4>
-                                <p class="text-sm text-gray-500">${class12Chapters.length} chapters • ${class12Videos.length} videos</p>
+                                <h4 class="font-semibold text-gray-800 dark:text-gray-200">Complete Physics - Class 12</h4>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">${class12Chapters.length} chapters • ${class12Videos.length} videos</p>
                             </div>
                         </div>
                         <div class="text-right">
-                            <div class="text-lg font-bold text-purple-600">${progressClass12}%</div>
-                            <div class="text-xs text-gray-500">Complete</div>
+                            <div class="text-lg font-bold text-purple-600 dark:text-purple-400">${progressClass12}%</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">Complete</div>
                         </div>
                     </div>`;
             }
@@ -1627,19 +1750,19 @@
                 const watchedClass11 = class11Videos.filter(v => user.watchedVideos.includes(v.id)).length;
                 const progressClass11 = class11Videos.length > 0 ? Math.round((watchedClass11 / class11Videos.length) * 100) : 0;
                 html += `
-                    <div class="flex items-center justify-between p-4 bg-indigo-50 rounded-lg border-l-4 border-indigo-500">
+                    <div class="flex items-center justify-between p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border-l-4 border-indigo-500 dark:border-indigo-400">
                         <div class="flex items-center">
-                            <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mr-4">
-                                <i class="fas fa-flask text-indigo-600 text-xl"></i>
+                            <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-flask text-indigo-600 dark:text-indigo-400 text-xl"></i>
                             </div>
                             <div>
-                                <h4 class="font-semibold text-gray-800">Complete Physics - Class 11</h4>
-                                <p class="text-sm text-gray-500">${class11Chapters.length} chapters • ${class11Videos.length} videos</p>
+                                <h4 class="font-semibold text-gray-800 dark:text-gray-200">Complete Physics - Class 11</h4>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">${class11Chapters.length} chapters • ${class11Videos.length} videos</p>
                             </div>
                         </div>
                         <div class="text-right">
-                            <div class="text-lg font-bold text-indigo-600">${progressClass11}%</div>
-                            <div class="text-xs text-gray-500">Complete</div>
+                            <div class="text-lg font-bold text-indigo-600 dark:text-indigo-400">${progressClass11}%</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">Complete</div>
                         </div>
                     </div>`;
             }
@@ -1649,23 +1772,23 @@
             );
 
             if (individualChapters.length > 0) {
-                html += `<div class="mt-4"><h4 class="font-medium text-gray-700 mb-2">Individual Chapters:</h4><div class="space-y-2">`;
+                html += `<div class="mt-4"><h4 class="font-medium text-gray-700 dark:text-gray-300 mb-2">Individual Chapters:</h4><div class="space-y-2">`;
                 individualChapters.forEach(chapter => {
                     const chapterVideos = videos.filter(v => v.chapterId === chapter.id);
                     const watchedInChapter = chapterVideos.filter(v => user.watchedVideos.includes(v.id)).length;
                     const chapterProgress = chapterVideos.length > 0 ? Math.round((watchedInChapter / chapterVideos.length) * 100) : 0;
                     html += `
-                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                             <div class="flex items-center">
-                                <div class="w-8 h-8 ${chapterProgress === 100 ? 'bg-green-100' : 'bg-gray-100'} rounded-full flex items-center justify-center mr-3">
-                                    <i class="fas ${chapterProgress === 100 ? 'fa-check text-green-600' : 'fa-book text-gray-500'} text-sm"></i>
+                                <div class="w-8 h-8 ${chapterProgress === 100 ? 'bg-green-100 dark:bg-green-900/30' : 'bg-gray-100 dark:bg-gray-600'} rounded-full flex items-center justify-center mr-3">
+                                    <i class="fas ${chapterProgress === 100 ? 'fa-check text-green-600 dark:text-green-400' : 'fa-book text-gray-500 dark:text-gray-400'} text-sm"></i>
                                 </div>
                                 <div>
-                                    <span class="font-medium text-gray-800 text-sm">${chapter.name}</span>
-                                    <span class="text-xs text-gray-500 ml-2">Class ${chapter.class}</span>
+                                    <span class="font-medium text-gray-800 dark:text-gray-200 text-sm">${chapter.name}</span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 ml-2">Class ${chapter.class}</span>
                                 </div>
                             </div>
-                            <span class="text-sm font-medium ${chapterProgress === 100 ? 'text-green-600' : 'text-gray-600'}">${chapterProgress}%</span>
+                            <span class="text-sm font-medium ${chapterProgress === 100 ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-300'}">${chapterProgress}%</span>
                         </div>`;
                 });
                 html += `</div></div>`;
@@ -1717,12 +1840,12 @@
             noActivity.classList.add('hidden');
 
             container.innerHTML = activities.slice(0, 15).map(a => `
-                <div class="flex items-center p-2 hover:bg-gray-50 rounded-lg">
-                    <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                <div class="flex items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg">
+                    <div class="w-8 h-8 bg-gray-100 dark:bg-gray-600 rounded-full flex items-center justify-center mr-3">
                         <i class="fas ${a.icon} ${a.color}"></i>
                     </div>
                     <div class="flex-1">
-                        <p class="text-sm text-gray-800">${a.title}</p>
+                        <p class="text-sm text-gray-800 dark:text-gray-200">${a.title}</p>
                         <p class="text-xs text-gray-400">${new Date(a.date).toLocaleDateString()}</p>
                     </div>
                 </div>
@@ -1902,8 +2025,8 @@
             if (announcements.length > 0) {
                 section.classList.remove('hidden');
                 list.innerHTML = announcements.slice(0, 5).map(a => `
-                    <div class="bg-white p-3 rounded-lg border-l-4 border-yellow-400">
-                        <p class="text-gray-700">${a.content}</p>
+                    <div class="bg-white dark:bg-gray-800 p-3 rounded-lg border-l-4 border-yellow-400 dark:border-yellow-600">
+                        <p class="text-gray-700 dark:text-gray-300">${a.content}</p>
                         <p class="text-xs text-gray-400 mt-1">${new Date(a.createdAt).toLocaleDateString()}</p>
                     </div>
                 `).join('');
@@ -1994,7 +2117,7 @@
                 const classChapters = purchasedChapters.filter(c => c.class === classNum);
                 if (classChapters.length === 0) return;
 
-                html += `<div class="mb-8"><h3 class="text-xl font-bold text-gray-800 mb-4"><i class="fas fa-book-open mr-2 text-purple-600"></i>Class ${classNum} Physics</h3><div class="space-y-4">`;
+                html += `<div class="mb-8"><h3 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-4"><i class="fas fa-book-open mr-2 text-purple-600"></i>Class ${classNum} Physics</h3><div class="space-y-4">`;
 
                 classChapters.forEach(chapter => {
                     const chapterVideos = videos.filter(v => v.chapterId === chapter.id);
@@ -2077,22 +2200,22 @@
                 const classChapters = classNum === 12 ? class12Chapters : class11Chapters;
                 const unpurchasedChapters = classChapters.filter(c => !purchasedChapterIds.includes(c.id));
 
-                html += `<div class="bg-gray-50 rounded-lg p-4">
+                html += `<div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
                     <div class="flex justify-between items-center mb-4">
-                        <h4 class="font-semibold text-gray-800">Class ${classNum} Physics</h4>
-                        ${!hasFullCourse ? `<button onclick="handleBuyCourse(${classNum})" class="px-4 py-1 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700">Buy Full Course ₹999</button>` : '<span class="text-green-600 text-sm"><i class="fas fa-check-circle"></i> Owned</span>'}
+                        <h4 class="font-semibold text-gray-800 dark:text-gray-200">Class ${classNum} Physics</h4>
+                        ${!hasFullCourse ? `<button onclick="handleBuyCourse(${classNum})" class="px-4 py-1 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700">Buy Full Course ₹999</button>` : '<span class="text-green-600 dark:text-green-400 text-sm"><i class="fas fa-check-circle"></i> Owned</span>'}
                     </div>`;
 
                 if (hasFullCourse) {
-                    html += `<p class="text-green-600 text-sm"><i class="fas fa-check-circle mr-1"></i>You have access to all chapters</p>`;
+                    html += `<p class="text-green-600 dark:text-green-400 text-sm"><i class="fas fa-check-circle mr-1"></i>You have access to all chapters</p>`;
                 } else if (unpurchasedChapters.length === 0) {
-                    html += `<p class="text-green-600 text-sm"><i class="fas fa-check-circle mr-1"></i>All chapters purchased</p>`;
+                    html += `<p class="text-green-600 dark:text-green-400 text-sm"><i class="fas fa-check-circle mr-1"></i>All chapters purchased</p>`;
                 } else {
                     html += `<div class="space-y-2 max-h-60 overflow-y-auto">`;
                     unpurchasedChapters.forEach(chapter => {
-                        html += `<div class="flex justify-between items-center bg-white p-2 rounded">
-                            <div class="flex items-center"><div class="w-5 h-5 rounded-full bg-gray-300 flex items-center justify-center mr-2"><i class="fas fa-lock text-white text-xs"></i></div><span class="text-sm text-gray-700">${chapter.name}</span></div>
-                            <button onclick="handleBuyChapter('${chapter.id}', ${classNum})" class="px-3 py-1 bg-gray-100 text-purple-600 rounded text-sm hover:bg-purple-100">₹99</button>
+                        html += `<div class="flex justify-between items-center bg-white dark:bg-gray-700 p-2 rounded">
+                            <div class="flex items-center"><div class="w-5 h-5 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center mr-2"><i class="fas fa-lock text-white text-xs"></i></div><span class="text-sm text-gray-700 dark:text-gray-200">${chapter.name}</span></div>
+                            <button onclick="handleBuyChapter('${chapter.id}', ${classNum})" class="px-3 py-1 bg-gray-100 dark:bg-gray-600 text-purple-600 dark:text-purple-300 rounded text-sm hover:bg-purple-100 dark:hover:bg-gray-500">₹99</button>
                         </div>`;
                     });
                     html += `</div>`;
@@ -2786,16 +2909,16 @@
         // ==================== CHAPTER LISTS ON HOME PAGE ====================
         function renderChapterLists() {
             document.getElementById('class12ChaptersList').innerHTML = class12Chapters.map(c => `
-                <div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
-                    <span class="text-sm text-gray-700">${c.name}</span>
-                    <button onclick="handleBuyChapter('${c.id}', 12)" class="px-3 py-1 text-purple-600 bg-purple-100 rounded text-sm hover:bg-purple-200">₹99</button>
+                <div class="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <span class="text-sm text-gray-700 dark:text-gray-300">${c.name}</span>
+                    <button onclick="handleBuyChapter('${c.id}', 12)" class="px-3 py-1 text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-900/30 rounded text-sm hover:bg-purple-200 dark:hover:bg-purple-900/50">₹99</button>
                 </div>
             `).join('');
 
             document.getElementById('class11ChaptersList').innerHTML = class11Chapters.map(c => `
-                <div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
-                    <span class="text-sm text-gray-700">${c.name}</span>
-                    <button onclick="handleBuyChapter('${c.id}', 11)" class="px-3 py-1 text-indigo-600 bg-indigo-100 rounded text-sm hover:bg-indigo-200">₹99</button>
+                <div class="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <span class="text-sm text-gray-700 dark:text-gray-300">${c.name}</span>
+                    <button onclick="handleBuyChapter('${c.id}', 11)" class="px-3 py-1 text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/30 rounded text-sm hover:bg-indigo-200 dark:hover:bg-indigo-900/50">₹99</button>
                 </div>
             `).join('');
         }
@@ -2811,9 +2934,11 @@
 
         // ==================== INITIALIZATION ====================
         document.addEventListener('DOMContentLoaded', () => {
+            initDarkMode();
             updateNavbar();
             renderChapterLists();
             updateHomeTeacherSection();
+            initAnimations();
             
             const videoModal = document.getElementById('videoModal');
             videoModal.addEventListener('contextmenu', e => { e.preventDefault(); return false; });
